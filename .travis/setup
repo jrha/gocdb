@@ -5,13 +5,26 @@ composer install
 doctrine="$PWD/vendor/bin/doctrine"
 
 if [[ -n "$DB" ]]; then
-    echo "Configuring unit tests for a $DB database"
+    echo "SETUP: Configuring unit tests for a $DB database"
+
+    if [[ "$DB" == "mysql" ]]; then
+        echo "SETUP: Creating database"
+        mysql -v -u root -e "create schema gocdb;"
+        echo "SETUP: Granting privileges"
+        mysql -v -u root gocdb -e "grant ALL PRIVILEGES on gocdb.* to travis@'%';"
+    fi
+
     cp .travis/${DB}_bootstrap_doctrine.php tests/doctrine/bootstrap_doctrine.php
     cp .travis/${DB}_bootstrap_pdo.php tests/doctrine/bootstrap_pdo.php
 
     cd tests/doctrine
     $doctrine orm:schema-tool:create
+
+    if [[ "$DB" == "mysql" ]]; then
+        echo "SETUP: Checking for tables"
+        mysql -v -u travis gocdb -e "show tables;"
+    fi
 else
-    echo 'Cannot setup unit tests, $DB is not defined.'
+    echo 'SETUP: Cannot setup unit tests, $DB is not defined.'
     exit 1
 fi
