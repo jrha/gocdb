@@ -29,8 +29,9 @@ class NotificationService extends AbstractEntityService {
      */
     public function roleRequest($entity) {
         $project = null;
-        $emails = null;
+        $users = null;
         $projectIds = null;
+        $entity_name = $entity->getName();
 
         // Get the roles from the entity
         foreach ( $entity->getRoles () as $role ) {
@@ -70,16 +71,16 @@ class NotificationService extends AbstractEntityService {
             if ($position != null) {
                 unset ( $enablingRoles [$position] );
             }*/
-            // Get the users email and add it to the array if they have an enabling role
+            // Get the user and add it to the array if they have an enabling role
             if (count ( $enablingRoles ) > 0) {
-                $emails [] = $role->getUser ()->getEmail ();
+                $users [] = $role->getUser();
             }
         }
 
         /*
          * No users are able to grant the role or there are no users over this entity. In this case we will email the parent entity for approval
          */
-        if ($emails == null || count($emails) == 0) {
+        if ($users == null || count($users) == 0) {
             if ($entity instanceof \Site) {
                 $this->roleRequest ( $entity->getNgi () ); // Recursivly call this function to send email to the NGI users
             } else if ($entity instanceof \NGI) {
@@ -97,8 +98,8 @@ class NotificationService extends AbstractEntityService {
         } else {
             // If the entity has valid users who can approve the role then send the email notification.
 
-            // Remove duplicate emails from array
-            $emails = array_unique ( $emails );
+            // Remove duplicate users from array
+            $users = array_unique($users);
 
             // Get the PortalURL to create an accurate link to the role approval view
             $localInfoLocation = __DIR__ . "/../../config/local_info.xml";
@@ -107,16 +108,20 @@ class NotificationService extends AbstractEntityService {
 
             // Email content
             $headers = "From: no-reply@goc.egi.eu";
-            $subject = "GocDB: A Role request requires attention";
+            $subject = "GocDB: A role over $entity_name requires attention";
 
-            $body = "Dear GOCDB User,\n\n" . "A user has requested a role that requires attention.\n\n" .
-                    "You can approve or deny this request here:\n\n" . $webPortalURL . "/index.php?Page_Type=Role_Requests\n\n" .
+            $text = "A user has requested a role over $entity_name that requires attention.\n\n" .
+                    "You can approve or deny this request here:\n\n" .
+                    "$webPortalURL/index.php?Page_Type=Role_Requests\n\n" .
                     "Note: This role may already have been approved or denied by another GocDB User";
 
             $sendMail = TRUE;
             // Send email to all users who can approve this role request
-            if ($emails != null) {
-                foreach ( $emails as $email ) {
+            if ($users != null) {
+                foreach ($users as $user) {
+                    $name = $user->getForename();
+                    $email = $user->getEmail();
+                    $body = "Dear $name,\n\n" . $text;
                     if($sendMail){
                        mail($email, $subject, $body, $headers);
                     } else {
