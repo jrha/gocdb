@@ -147,8 +147,6 @@ class NotificationService extends AbstractEntityService {
 
 
     private function send_email($role_requested, $requesting_user, $entity_name, $approving_user) {
-        $headers = "From: no-reply@goc.egi.eu";
-
         $subject = sprintf(
             'GocDB: A Role request from %1$s over %2$s requires your attention',
             $requesting_user->getForename(),
@@ -173,6 +171,7 @@ class NotificationService extends AbstractEntityService {
         );
 
         $email = $approving_user->getEmail();
+        $headers = "From: no-reply@goc.egi.eu";
 
         if (True) {
             mail($email, $subject, $body, $headers);
