@@ -147,7 +147,6 @@ class NotificationService extends AbstractEntityService {
 
 
     private function send_email($role_requested, $requesting_user, $entity_name, $approving_user) {
-        $sendMail = TRUE;
         $headers = "From: no-reply@goc.egi.eu";
 
         $subject = sprintf(
@@ -175,7 +174,7 @@ class NotificationService extends AbstractEntityService {
 
         $email = $approving_user->getEmail();
 
-        if ($sendMail) {
+        if (True) {
             mail($email, $subject, $body, $headers);
         } else {
             mock_mail($email, $subject, $body, $headers);
