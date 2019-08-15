@@ -96,7 +96,7 @@ function submitRoleRequest($roleName, $entityId, \User $user =null) {
    $newRole = \Factory::getRoleService()->addRole($roleName, $user, $entity);
 
    if(\Factory::getConfigService()->getSendEmails()){
-       \Factory::getNotificationService()->roleRequest($entity);
+       \Factory::getNotificationService()->roleRequest($roleName, $user, $entity);
    }
 
    show_view('political_role/new_request.php');
