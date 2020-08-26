@@ -125,6 +125,15 @@ class NotificationService extends AbstractEntityService {
     }
 
 
+    /**
+    * Return whether send_email is enabled in the config file
+    */
+    private function get_config_send_email() {
+        $localInfoXML = simplexml_load_file(__DIR__ . "/../../config/local_info.xml");
+        return strtolower($localInfoXML->local_info->send_email) === 'true';
+    }
+
+
     private function mock_mail($to, $subject, $message, $additional_headers = "", $additional_parameters = "") {
         echo "<!--\n";
         echo "Sending mail disabled, but would have sent:\n";
@@ -165,7 +174,7 @@ class NotificationService extends AbstractEntityService {
         $email = $approving_user->getEmail();
         $headers = "From: no-reply@goc.egi.eu";
 
-        if (True) {
+        if (get_config_send_email()) {
             mail($email, $subject, $body, $headers);
         } else {
             mock_mail($email, $subject, $body, $headers);
