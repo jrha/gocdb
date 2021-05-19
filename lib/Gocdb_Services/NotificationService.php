@@ -167,7 +167,7 @@ class NotificationService extends AbstractEntityService {
                 '%2$s requested %3$s on %4$s which requires your attention.',
                 '',
                 'You can approve or deny the request here:',
-                '    %3$s/index.php?Page_Type=Role_Requests',
+                '    %5$s/index.php?Page_Type=Role_Requests',
                 '',
                 'Note: This role could already have been approved or denied by another GocDB User',
             )),
